@@ -1,0 +1,7 @@
+stag==1.1.1
+scipy
+scikit-learn
+scikit-image
+networkx
+pandas
+numpy
