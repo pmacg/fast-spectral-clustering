@@ -24,8 +24,22 @@ def fast_spectral_cluster(g: stag.graph.Graph, k: int):
     t = 10 * math.ceil(math.log(g.number_of_vertices() / k, 2))
     M = g.normalised_signless_laplacian()
     Y = np.random.normal(size=(g.number_of_vertices(), l))
+
+    # We know the top eigenvector of the normalised laplacian.
+    # It doesn't help with clustering, so we will project our power method to
+    # be orthogonal to it.
+    top_eigvec = np.sqrt(g.degree_matrix().to_scipy() @ np.full((g.number_of_vertices(),), 1))
+    norm = np.linalg.norm(top_eigvec)
+    if norm > 0:
+        top_eigvec /= norm
+
     for _ in range(t):
         Y = M @ Y
+
+        # Project Y to be orthogonal to the top eigenvector
+        for i in range(l):
+            Y[:, i] -= (top_eigvec.transpose() @ Y[:, i]) * top_eigvec
+
     kmeans = KMeans(n_clusters=k, n_init='auto')
     kmeans.fit(Y)
     return kmeans.labels_
