@@ -196,9 +196,9 @@ def run_sbm_experiment_growing_n():
 def sbm_plot(which: str, save=False):
     algname_map = {
         'k eigenvectors': '\\textsc{$k$ Eigenvectors}',
-        'log(k) eigenvectors': '\\textsc{$\log(k)$ Eigenvectors}',
+        'log(k) eigenvectors': '\\textsc{$\\log(k)$ Eigenvectors}',
         'k PM': '\\textsc{PM $k$ Vectors}',
-        'log(k) PM': '\\textsc{PM $\log(k)$ Vectors}',
+        'log(k) PM': '\\textsc{PM $\\log(k)$ Vectors}',
     }
 
     linestyle_map = {

@@ -51,7 +51,7 @@ def kmeans(data, k):
 # Normal Spectral Clustering
 #############################################
 def spectral_cluster(g: stag.graph.Graph, k: int):
-    lap_mat = g.normalised_laplacian()
+    lap_mat = g.normalised_laplacian().to_scipy()
     _, eigenvectors = scipy.sparse.linalg.eigsh(lap_mat, k, which='SM')
     labels, _ = kmeans(eigenvectors, k)
     return labels
@@ -60,7 +60,7 @@ def spectral_cluster(g: stag.graph.Graph, k: int):
 def spectral_cluster_logk(g: stag.graph.Graph, k: int):
     """Normal spectral clustering with only log(k) eigenvectors"""
     logk = math.ceil(math.log(k, 2))
-    lap_mat = g.normalised_laplacian()
+    lap_mat = g.normalised_laplacian().to_scipy()
     _, eigenvectors = scipy.sparse.linalg.eigsh(lap_mat, logk, which='SM')
     labels, _ = kmeans(eigenvectors, k)
     return labels
@@ -135,13 +135,18 @@ def nystrom_spectral_clustering(X, k, gamma):
 # Power Method spectral clustering
 ########################################
 def fast_spectral_cluster(g: stag.graph.Graph, k: int, t_const=10):
-    l = min(k, math.ceil(math.log(k, 2)))
+    l = max(2, math.ceil(math.log(k, 2)))
     t = t_const * math.ceil(math.log(g.number_of_vertices() / k, 2))
     M = g.normalised_signless_laplacian()
     Y = np.random.normal(size=(g.number_of_vertices(), l))
+
     for _ in range(t):
         Y = M @ Y
-    labels, _ = kmeans(Y, k)
+
+    # Orthogonalise
+    singular_vectors, _, _ = np.linalg.svd(Y, full_matrices=False)
+
+    labels, _ = kmeans(singular_vectors, k)
     return labels
 
 
